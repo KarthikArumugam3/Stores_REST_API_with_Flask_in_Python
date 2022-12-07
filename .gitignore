@@ -129,6 +129,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Unwanted directories and files
+# Unwanted files and directory
 versions_track/
 test.py
