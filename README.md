@@ -1,6 +1,6 @@
 # Stores_REST_API_with_Flask_in_Python
 
-Note:- Project still in development
+Note:- Project still in development not completed yet.
 
 ## Commands to run the dockerfile
 
