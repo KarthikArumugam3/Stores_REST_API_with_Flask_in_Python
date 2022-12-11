@@ -3,7 +3,11 @@ from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 
-from db import items
+from sqlalchemy.exc import SQLAlchemyError
+
+from db import db
+from models import ItemModel
+
 from schemas import ItemSchema, ItemUpdateSchema
  
 blp = Blueprint("Items","items", description="Operations on items")
@@ -59,24 +63,29 @@ class ItemList(MethodView):
     @blp.arguments(ItemSchema)
     @blp.response(200, ItemSchema)
     def post(self,item_data):
+        item = ItemModel(**item_data)
         # item_data = request.get_json()
 
         # Here not only we need to validate data exists,
         # But also what type of data. Price should be a float,
         # for example.
 
-        
         # Here we check if the data entered already exists or not
         # If it does then we throw a messages
-        for item in items.values():
+        # for item in items.values():
 
-            if (
-                item_data['name'] == item['name'] and item_data['store_id'] == item['store_id']
-            ):
-                abort(404, message=f"Item already exists")
+        #     if (
+        #         item_data['name'] == item['name'] and item_data['store_id'] == item['store_id']
+        #     ):
+        #         abort(404, message=f"Item already exists")
 
-        item_id = uuid.uuid4().hex
-        item = {**item_data, "id": item_id}
-        items[item_id] = item
+        # The above checking is now handled from the database side - modekls/item.py
+        #So at this ppoint items cannot be posted to the store with uuids, instead we need to use a int to denote a store
 
-        return item, 201
+        try:
+            db.session.add(item)
+            db.session.commit()
+        except SQLAlchemyError:
+            abort(500, message="An error occurred while inserting the item.")
+
+        return item
